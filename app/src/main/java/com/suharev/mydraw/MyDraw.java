@@ -16,10 +16,16 @@ import java.util.Timer;
 
 public class MyDraw extends View {
     boolean gameField[][], isGenerate = false;
-    int n = 4;
-    int m = 4;
-    int r = 80;
+    int n;
+    int m;
+    int r;
     int ro = 12;
+    int[] arrayN = new int[]{3, 4, 5, 6, 7};
+    int[] arrayM = new int[]{3, 4, 5, 6, 7};
+    int[] arrayR = new int[]{100, 80, 65, 50, 45};
+    int[] arrayColor = new int[]{Color.BLACK, Color.rgb(128, 128, 0), Color.GRAY, Color.MAGENTA, Color.RED};
+    int indexSettings = 1;
+    int cxButton, cyButton;
     int width;
     int height;
     Paint paint;
@@ -34,10 +40,14 @@ public class MyDraw extends View {
         super.onDraw(canvas);
         width = canvas.getWidth();
         height = canvas.getHeight();
-        paint.setColor(Color.rgb(128, 128, 0));
-
+        paint.setColor(arrayColor[indexSettings]);
+        n = arrayN[indexSettings];
+        m = arrayM[indexSettings];
+        r = arrayR[indexSettings];
+        cxButton = width - r - 25;
+        cyButton = height - r - 25;
         if (!isGenerate) {
-            generateGameField();
+            generateGameField(n, m);
             isGenerate = !isGenerate;
         }
 
@@ -52,6 +62,13 @@ public class MyDraw extends View {
             double touchX = event.getX();
             double touchY = event.getY();
             changeGameField(touchX, touchY);
+            if (Math.pow(touchX - cxButton, 2) + Math.pow(touchY - cyButton, 2) <= r * r) {
+                indexSettings++;
+                if (indexSettings == arrayM.length) {
+                    indexSettings = 0;
+                }
+                generateGameField(arrayN[indexSettings], arrayM[indexSettings]);
+            }
         }
         return true;
     }
@@ -67,9 +84,11 @@ public class MyDraw extends View {
             cx = (width - (r * 2) * m - ro * (m - 1)) / 2 + r;
             cy += r * 2 + ro;
         }
+        paint.setStyle(Paint.Style.FILL_AND_STROKE);
+        canvas.drawCircle(cxButton, cyButton, r, paint);
     }
-    public void generateGameField(){
-        gameField = new boolean[n][m];
+    public void generateGameField(int height, int width){
+        gameField = new boolean[height][width];
         Random random = new Random();
         for (int i = 0; i < gameField.length; i++) {
             for (int j = 0; j < gameField[i].length; j++) {
@@ -92,7 +111,7 @@ public class MyDraw extends View {
             }
         }
         if (checkWin()) {
-            generateGameField();
+            generateGameField(n, m);
         }
         invalidate();
     }
